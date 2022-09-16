@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
+import 'package:shop_shop/providers/orders_provider.dart';
 
 class CartScreen extends StatelessWidget {
   static const String routeName = 'cart';
@@ -65,16 +66,17 @@ class CartOverview extends StatelessWidget {
                 Text(
                   '\$${cartProvider.totalPrice.toStringAsFixed(2)}',
                 ),
-                const SizedBox(
-                  width: 15,
-                ),
+                const SizedBox(width: 15),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    // Provider.of<OrdersProvider>(context)
+                    //     .addToOrder(cartProvider.items);
+                  },
                   child: const Text('Order'),
                 ),
               ],

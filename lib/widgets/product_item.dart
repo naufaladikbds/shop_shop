@@ -16,8 +16,19 @@ class ProductItem extends StatelessWidget {
       borderRadius: const BorderRadius.all(Radius.circular(15)),
       child: GridTile(
         footer: GridTileBar(
-          backgroundColor: Colors.black54,
+          backgroundColor: Color.fromRGBO(1, 1, 1, 0.8),
           leading: IconButton(
+            icon: Consumer<Product>(
+              builder: (context, value, child) => Icon(
+                productProvider.isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border_outlined,
+                color: Color.fromARGB(255, 255, 144, 212),
+              ),
+            ),
+            onPressed: productProvider.toggleFavorite,
+          ),
+          trailing: IconButton(
             icon: Icon(
               Icons.shopping_cart,
               color: Theme.of(context).primaryColor,
@@ -29,17 +40,6 @@ class ProductItem extends StatelessWidget {
                 productProvider.price,
               );
             },
-          ),
-          trailing: IconButton(
-            icon: Consumer<Product>(
-              builder: (context, value, child) => Icon(
-                productProvider.isFavorite
-                    ? Icons.favorite
-                    : Icons.favorite_border_outlined,
-                color: Theme.of(context).accentColor,
-              ),
-            ),
-            onPressed: productProvider.toggleFavorite,
           ),
           title: Text(
             productProvider.title,

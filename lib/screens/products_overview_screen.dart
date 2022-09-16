@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:shop_shop/screens/cart_screen.dart';
+import 'package:shop_shop/screens/orders_screen.dart';
 import 'package:shop_shop/widgets/icon_with_badge.dart';
 import 'package:shop_shop/widgets/products_grid.dart';
 
-enum FilterOptions { favorites, all }
+enum FilterOptions { favorites, all, order }
 
 class ProductsOverviewScreen extends StatefulWidget {
   @override
@@ -23,7 +24,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Shop Shop"),
+        title: const Text('Shop Shop'),
         actions: [
           Consumer<CartProvider>(
             builder: (context, value, child) => IconWithBadge(
@@ -44,15 +45,24 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
                   isShowFavoritesOnly = true;
                 } else if (value == FilterOptions.all) {
                   isShowFavoritesOnly = false;
+                } else if (value == FilterOptions.order) {
+                  Navigator.pushNamed(context, OrdersScreen.routeName);
                 }
               });
             },
             itemBuilder: (_) => [
               const PopupMenuItem(
-                  value: FilterOptions.favorites,
-                  child: Text("Show favorites only")),
+                value: FilterOptions.favorites,
+                child: Text('Show favorites only'),
+              ),
               const PopupMenuItem(
-                  value: FilterOptions.all, child: Text("Show all")),
+                value: FilterOptions.all,
+                child: Text('Show all'),
+              ),
+              const PopupMenuItem(
+                value: FilterOptions.order,
+                child: Text('Orders'),
+              ),
             ],
             icon: const Icon(
               Icons.more_vert,
