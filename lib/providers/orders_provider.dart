@@ -2,7 +2,52 @@ import 'package:flutter/cupertino.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 
 class OrdersProvider extends ChangeNotifier {
-  final List<OrderItem> _orderList = [];
+  final List<OrderItem> _orderList = [
+    OrderItem(
+      id: '000',
+      orderList: [
+        CartItem(
+          id: '01',
+          title: "Sunday Bruh",
+          price: 192.84,
+          quantity: 5,
+        ),
+        CartItem(
+          id: '02',
+          title: "Action Figure",
+          price: 823.84,
+          quantity: 2,
+        ),
+      ],
+      totalPrice: 856.23,
+      orderDate: DateTime.now(),
+    ),
+    OrderItem(
+      id: '001',
+      orderList: [
+        CartItem(
+          id: '05',
+          title: "Item 1",
+          price: 192.84,
+          quantity: 5,
+        ),
+        CartItem(
+          id: '06',
+          title: "Item 2",
+          price: 823.84,
+          quantity: 2,
+        ),
+        CartItem(
+          id: '06',
+          title: "Item 3",
+          price: 823.84,
+          quantity: 2,
+        ),
+      ],
+      totalPrice: 856.23,
+      orderDate: DateTime.now(),
+    ),
+  ];
 
   List<OrderItem> get orderList {
     return [..._orderList];
@@ -14,7 +59,8 @@ class OrdersProvider extends ChangeNotifier {
       totalCartPrice += item.price * item.quantity;
     }
 
-    _orderList.add(
+    _orderList.insert(
+      0,
       OrderItem(
         id: DateTime.now().toString(),
         orderList: cartItems,
