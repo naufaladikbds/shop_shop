@@ -14,7 +14,7 @@ class ProductDetailScreen extends StatelessWidget {
         .searchItemById(id);
 
     return Scaffold(
-      appBar: AppBar(title: Text(product.id)),
+      appBar: AppBar(title: Text(product.title)),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -36,7 +36,7 @@ class ProductDetailScreen extends StatelessWidget {
                 right: 20,
               ),
               child: Text(
-                '${product.price}',
+                '\$${product.price}',
                 style: TextStyle(
                   color: Colors.grey[500],
                   fontSize: 18,
