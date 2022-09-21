@@ -30,8 +30,10 @@ class MyApp extends StatelessWidget {
           accentColor: Colors.blue,
           fontFamily: "Lato",
         ),
-        home: ProductsOverviewScreen(),
+        initialRoute: ProductsOverviewScreen.routeName,
         routes: {
+          ProductsOverviewScreen.routeName: (context) =>
+              ProductsOverviewScreen(),
           ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
           CartScreen.routeName: (context) => CartScreen(),
           OrdersScreen.routeName: (context) => OrdersScreen(),

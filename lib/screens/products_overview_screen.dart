@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:shop_shop/screens/cart_screen.dart';
 import 'package:shop_shop/screens/orders_screen.dart';
+import 'package:shop_shop/widgets/custom_drawer.dart';
 import 'package:shop_shop/widgets/icon_with_badge.dart';
 import 'package:shop_shop/widgets/products_grid.dart';
 
 enum FilterOptions { favorites, all, order }
 
 class ProductsOverviewScreen extends StatefulWidget {
+  static const routeName = 'products-overview';
+
   @override
   State<ProductsOverviewScreen> createState() => _ProductsOverviewScreenState();
 }
@@ -23,6 +26,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     // final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
+      drawer: CustomDrawer(),
       appBar: AppBar(
         title: const Text('Shop Shop'),
         actions: [
