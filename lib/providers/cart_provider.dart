@@ -80,4 +80,9 @@ class CartProvider with ChangeNotifier {
     _items.remove(productCartId);
     notifyListeners();
   }
+
+  void emptyCart() {
+    _items.clear();
+    notifyListeners();
+  }
 }

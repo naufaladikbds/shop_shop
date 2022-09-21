@@ -31,7 +31,9 @@ class CartScreen extends StatelessWidget {
         height: double.infinity,
         child: Column(
           children: [
-            CartOverview(cartProvider: cartProvider),
+            CartOverview(
+              cartProvider: cartProvider,
+            ),
             CartList(
               cartItemsList: cartItemsList,
               cartProvider: cartProvider,
@@ -53,6 +55,11 @@ class CartOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final orderProvider = Provider.of<OrdersProvider>(
+      context,
+      listen: false,
+    );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(10),
@@ -74,8 +81,9 @@ class CartOverview extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // Provider.of<OrdersProvider>(context)
-                    //     .addToOrder(cartProvider.items);
+                    orderProvider
+                        .addToOrder(cartProvider.items.values.toList());
+                    cartProvider.emptyCart();
                   },
                   child: const Text('Order'),
                 ),
