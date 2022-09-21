@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/orders_provider.dart';
+import 'package:shop_shop/widgets/custom_drawer.dart';
 
 class OrdersScreen extends StatelessWidget {
   static const routeName = 'order';
@@ -12,6 +15,7 @@ class OrdersScreen extends StatelessWidget {
     final List<OrderItem> orderList = ordersProvider.orderList;
 
     return Scaffold(
+      drawer: CustomDrawer(),
       appBar: AppBar(
         title: Text('Order History'),
       ),
@@ -64,14 +68,17 @@ class _OrderCardState extends State<OrderCard> {
               });
             },
           ),
-          Container(
-            // duration: Duration(milliseconds: 500),
-            padding: EdgeInsets.only(top: 10, right: 15, left: 15, bottom: 12),
-            height: isExpanded ? null : 0,
+          AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.linearToEaseOut,
+            padding: EdgeInsets.only(top: 10, right: 15, left: 15, bottom: 10),
+            height: isExpanded
+                ? min(widget.order.orderList.length * 17.5 + 20,
+                    180) // dynamic height
+                : 0,
             width: double.infinity,
             color: Colors.grey[300],
             child: ListView.builder(
-              shrinkWrap: true,
               itemBuilder: (ctx, i) => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
