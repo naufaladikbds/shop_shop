@@ -77,7 +77,7 @@ class _OrderCardState extends State<OrderCard> {
                     180) // dynamic height
                 : 0,
             width: double.infinity,
-            color: Colors.grey[300],
+            color: Colors.grey[200],
             child: ListView.builder(
               itemBuilder: (ctx, i) => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -139,7 +139,8 @@ class CartList extends StatelessWidget {
                       return await showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: Text('Confirm Delete'),
+                          title: Text(
+                              'Remove "${cartItemsList[i].title}" from cart?'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
