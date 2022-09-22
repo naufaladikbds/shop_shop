@@ -54,6 +54,35 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((element) => element.id == id);
   }
 
+  void addProduct(Product newProduct) {
+    _items.add(newProduct);
+    notifyListeners();
+  }
+
+  void editProduct(
+    String productId,
+    String newTitle,
+    double newPrice,
+    String newDesc,
+    String newImageUrl,
+  ) {
+    _items.removeWhere((element) => element.id == productId);
+    addProduct(
+      Product(
+        id: productId,
+        title: newTitle,
+        description: newDesc,
+        price: newPrice,
+        imageUrl: newImageUrl,
+      ),
+    );
+  }
+
+  void removeProduct(String productId) {
+    _items.removeWhere((element) => element.id == productId);
+    notifyListeners();
+  }
+
   // void toggleShowFavoritesOnly() {
   //   isShowFavoritesOnly = true;
   //   notifyListeners();
@@ -63,9 +92,4 @@ class ProductsProvider with ChangeNotifier {
   //   isShowFavoritesOnly = false;
   //   notifyListeners();
   // }
-
-  void addProduct(Product newProduct) {
-    _items.add(newProduct);
-    notifyListeners();
-  }
 }
