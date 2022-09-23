@@ -31,21 +31,39 @@ class EditProductScreen extends StatefulWidget {
 class _EditProductScreenState extends State<EditProductScreen> {
   bool displayPreview = false;
 
-  final titleCtrl = TextEditingController();
-  final priceCtrl = TextEditingController();
-  final descCtrl = TextEditingController();
+  // final titleCtrl = TextEditingController();
+  // final priceCtrl = TextEditingController();
+  // final descCtrl = TextEditingController();
   final imageCtrl = TextEditingController();
 
   final priceFocus = FocusNode();
   final descFocus = FocusNode();
   final imageUrlFocus = FocusNode();
 
+  final formKey = GlobalKey<FormState>();
+
+  Product editedProduct = Product(
+    id: '',
+    title: '',
+    price: 0,
+    description: '',
+    imageUrl: '',
+  );
+
   @override
   void initState() {
     if (widget.productId != null) {
-      titleCtrl.text = widget.title;
-      priceCtrl.text = widget.price.toString();
-      descCtrl.text = widget.description;
+      // titleCtrl.text = widget.title;
+      // priceCtrl.text = widget.price.toString();
+      // descCtrl.text = widget.description;
+
+      editedProduct = Product(
+        id: widget.productId!,
+        title: widget.title,
+        description: widget.description,
+        price: widget.price,
+        imageUrl: widget.imageUrl,
+      );
       imageCtrl.text = widget.imageUrl;
     }
     super.initState();
@@ -53,10 +71,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void dispose() {
-    priceFocus.dispose();
     descFocus.dispose();
     priceFocus.dispose();
+    imageUrlFocus.dispose();
     super.dispose();
+  }
+
+  void saveForm() {
+    formKey.currentState!.save();
   }
 
   @override
@@ -79,29 +101,82 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 vertical: 15,
               ),
               child: Form(
-                autovalidateMode: AutovalidateMode.always,
+                // onChanged: () {},
+                key: formKey,
                 child: Column(
                   children: [
                     CustomTextFormField(
                       labelText: 'Title',
-                      controller: titleCtrl,
-                      onFieldSubmitted: (_) =>
-                          FocusScope.of(context).requestFocus(priceFocus),
+                      initialValue: editedProduct.title,
+                      validator: (title) {
+                        if (title!.trim().isEmpty || title.trim().length < 3) {
+                          return 'Title must contain 3 characters or more';
+                        }
+
+                        return null;
+                      },
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(priceFocus);
+                      },
+                      onSaved: (titleInput) {
+                        print('test3');
+                        editedProduct = Product(
+                          id: editedProduct.id,
+                          title: titleInput ?? '',
+                          description: editedProduct.description,
+                          price: editedProduct.price,
+                          imageUrl: editedProduct.imageUrl,
+                        );
+                      },
                     ),
                     CustomTextFormField(
                       labelText: 'Price',
-                      controller: priceCtrl,
+                      initialValue: editedProduct.price == 0
+                          ? null
+                          : editedProduct.price.toString(),
                       focusNode: priceFocus,
+                      validator: (price) {
+                        if (price!.contains(RegExp(r'[^0-9.]'))) {
+                          return 'Price must only contain numerics [0-9]';
+                        }
+
+                        if (price.isEmpty || double.parse(price) < 0.1) {
+                          return 'Price can\'t be empty or zero';
+                        }
+
+                        return null;
+                      },
                       onFieldSubmitted: (_) =>
                           FocusScope.of(context).requestFocus(descFocus),
+                      onSaved: (priceInput) {
+                        print('test4');
+                        editedProduct = Product(
+                          id: editedProduct.id,
+                          title: editedProduct.title,
+                          description: editedProduct.description,
+                          price: double.parse(
+                              priceInput!.isEmpty ? '0.0' : priceInput),
+                          imageUrl: editedProduct.imageUrl,
+                        );
+                      },
                     ),
                     CustomTextFormField(
                       labelText: 'Description',
-                      controller: descCtrl,
+                      initialValue: editedProduct.description,
                       focusNode: descFocus,
                       maxLines: 5,
                       onFieldSubmitted: (_) =>
                           FocusScope.of(context).requestFocus(imageUrlFocus),
+                      onSaved: (descInput) {
+                        print('test5');
+                        editedProduct = Product(
+                          id: editedProduct.id,
+                          title: editedProduct.title,
+                          description: descInput ?? '',
+                          price: editedProduct.price,
+                          imageUrl: editedProduct.imageUrl,
+                        );
+                      },
                     ),
                     Container(
                       decoration: BoxDecoration(),
@@ -120,6 +195,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 });
                               },
                             ),
+                            onSaved: (imageInput) {
+                              editedProduct = Product(
+                                id: editedProduct.id,
+                                title: editedProduct.title,
+                                description: editedProduct.description,
+                                price: editedProduct.price,
+                                imageUrl: imageInput ?? '',
+                              );
+                            },
                           ),
                           Container(
                             height: 200,
@@ -149,14 +233,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
-                                        return Center(
-                                          child: Text(
-                                            'Please input a valid URL\n',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        );
+                                        return Image.network(
+                                            fit: BoxFit.fill,
+                                            'https://rimatour.com/wp-content/uploads/2017/09/No-image-found.jpg');
                                       },
                                     ),
                                   ),
@@ -180,25 +259,40 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    widget.productId != null
-                        ? productProvider.editProduct(
-                            widget.productId!,
-                            titleCtrl.text,
-                            double.parse(priceCtrl.text),
-                            descCtrl.text,
-                            imageCtrl.text,
-                          )
-                        : productProvider.addProduct(
-                            Product(
+                    if (formKey.currentState!.validate()) {
+                      saveForm();
+                      editedProduct.id.isEmpty
+                          ? productProvider.addProduct(
                               id: DateTime.now().toString(),
-                              title: titleCtrl.text,
-                              description: descCtrl.text,
-                              price: double.parse(priceCtrl.text),
-                              imageUrl: imageCtrl.text,
-                            ),
-                          );
-
-                    Navigator.pop(context);
+                              title: editedProduct.title,
+                              description: editedProduct.description,
+                              price: editedProduct.price,
+                              imageUrl: editedProduct.imageUrl.isEmpty
+                                  ? 'https://rimatour.com/wp-content/uploads/2017/09/No-image-found.jpg'
+                                  : editedProduct.imageUrl,
+                            )
+                          : productProvider.editProduct(
+                              editedProduct,
+                            );
+                      Navigator.pop(context);
+                    }
+                    // widget.productId != null
+                    //     ? productProvider.editProduct(
+                    //         widget.productId!,
+                    //         titleCtrl.text,
+                    //         double.parse(priceCtrl.text),
+                    //         descCtrl.text,
+                    //         imageCtrl.text,
+                    //       )
+                    //     : productProvider.addProduct(
+                    //         Product(
+                    //           id: DateTime.now().toString(),
+                    //           title: titleCtrl.text,
+                    //           description: descCtrl.text,
+                    //           price: double.parse(priceCtrl.text),
+                    //           imageUrl: imageCtrl.text,
+                    //         ),
+                    //       );
                   },
                   child: Text(
                     widget.productId == null ? 'Add Product' : 'Apply Changes',
@@ -214,23 +308,29 @@ class _EditProductScreenState extends State<EditProductScreen> {
 }
 
 class CustomTextFormField extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String labelText;
+  final String? initialValue;
   final Widget? suffixIcon;
   final bool withImagePreview;
   final void Function(String)? onFieldSubmitted;
+  final String? Function(String?)? validator;
   final FocusNode? focusNode;
   final int maxLines;
+  final void Function(String?)? onSaved;
 
   const CustomTextFormField({
     Key? key,
-    required this.controller,
     required this.labelText,
+    this.controller,
     this.withImagePreview = false,
     this.suffixIcon,
     this.onFieldSubmitted,
+    this.onSaved,
     this.focusNode,
     this.maxLines = 1,
+    this.initialValue,
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -238,6 +338,9 @@ class CustomTextFormField extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: 10),
       child: TextFormField(
+        validator: validator,
+        initialValue: initialValue,
+        onSaved: onSaved,
         maxLines: maxLines,
         focusNode: focusNode,
         controller: controller,
