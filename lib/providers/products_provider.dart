@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:shop_shop/models/product.dart';
+
+import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _items = [
@@ -54,20 +59,43 @@ class ProductsProvider with ChangeNotifier {
     return _items.firstWhere((element) => element.id == id);
   }
 
-  void addProduct({
+  Future<void> addProduct({
     required String id,
     required double price,
     required String description,
     required String title,
     required String imageUrl,
-  }) {
-    _items.add(Product(
-        id: id,
-        title: title,
-        description: description,
-        price: price,
-        imageUrl: imageUrl));
-    notifyListeners();
+    required bool isFavorite,
+  }) async {
+    final Uri parsedUrl = Uri.parse(
+        'https://shop-shop-flutter-default-rtdb.asia-southeast1.firebasedatabase.app/products.json');
+
+    Map<String, dynamic> requestBody = {
+      'title': title,
+      'description': description,
+      'price': price,
+      'imageUrl': imageUrl,
+      'isFavorite': isFavorite,
+    };
+
+    var res = await http.post(
+      parsedUrl,
+      body: json.encode(requestBody),
+    );
+
+    return Future.delayed(Duration(seconds: 1), () {
+      _items.add(
+        Product(
+          id: json.decode(res.body)['name'],
+          title: title,
+          description: description,
+          price: price,
+          imageUrl: imageUrl,
+          isFavorite: isFavorite,
+        ),
+      );
+      notifyListeners();
+    });
   }
 
   void editProduct(Product product) {
