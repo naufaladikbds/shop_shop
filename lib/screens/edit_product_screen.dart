@@ -303,29 +303,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                     : editedProduct.imageUrl,
                                 isFavorite: false,
                               );
+                            } catch (error) {
+                              await showDialog(
+                                  context: context,
+                                  builder: (ctx) {
+                                    return AlertDialog(
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('FUUUUUUUU'),
+                                        ),
+                                      ],
+                                      title: Text('Error'),
+                                      content: Text(error.toString()),
+                                    );
+                                  });
+                            } finally {
                               setState(() {
                                 isLoading = false;
                                 Navigator.pop(context);
-                              });
-                            } catch (error) {
-                              setState(() {
-                                isLoading = false;
-                                showDialog(
-                                    context: context,
-                                    builder: (ctx) {
-                                      return AlertDialog(
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text('FUUUUUUUU'),
-                                          ),
-                                        ],
-                                        title: Text('Error'),
-                                        content: Text(error.toString()),
-                                      );
-                                    });
                               });
                             }
                           } else {
