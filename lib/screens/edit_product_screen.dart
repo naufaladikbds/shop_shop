@@ -313,7 +313,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
-                                          child: Text('FUUUUUUUU'),
+                                          child: Text('Okei'),
                                         ),
                                       ],
                                       title: Text('Error'),
@@ -327,9 +327,35 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               });
                             }
                           } else {
-                            productProvider.editProduct(
-                              editedProduct,
-                            );
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            try {
+                              await productProvider.editProduct(editedProduct);
+                            } catch (error) {
+                              await showDialog(
+                                  context: context,
+                                  builder: (ctx) {
+                                    return AlertDialog(
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Okei'),
+                                        ),
+                                      ],
+                                      title: Text('Error'),
+                                      content: Text(error.toString()),
+                                    );
+                                  });
+                            } finally {
+                              setState(() {
+                                isLoading = false;
+                                Navigator.pop(context);
+                              });
+                            }
                           }
                         }
                       },
