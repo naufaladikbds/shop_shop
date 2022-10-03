@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_shop/models/product.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
+import 'package:shop_shop/providers/products_provider.dart';
 import 'package:shop_shop/screens/cart_screen.dart';
 import 'package:shop_shop/screens/orders_screen.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
 import 'package:shop_shop/widgets/icon_with_badge.dart';
 import 'package:shop_shop/widgets/products_grid.dart';
+
+import 'package:http/http.dart' as http;
 
 enum FilterOptions { favorites, all, order }
 
@@ -18,13 +22,28 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool isShowFavoritesOnly = false;
+  bool isInit = false;
+  bool isLoading = false;
+  late List<Product> productList = [];
+
+  @override
+  void didChangeDependencies() {
+    if (isInit == false) {
+      isLoading = true;
+
+      final productsProvider = Provider.of<ProductsProvider>(context);
+      productsProvider
+          .fetchProducts()
+          .then((_) => productList = productsProvider.items)
+          .then((_) => isLoading = false);
+    }
+    isInit = true;
+
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // final productsProvider =
-    //     Provider.of<ProductsProvider>(context, listen: false);
-    // final cartProvider = Provider.of<CartProvider>(context);
-
     return Scaffold(
       drawer: CustomDrawer(),
       appBar: AppBar(
@@ -74,7 +93,24 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
-      body: ProductsGrid(isShowFavoritesOnly: isShowFavoritesOnly),
+      body: isLoading
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text('Fetching data...'),
+                ],
+              ),
+            )
+          : ProductsGrid(
+              isShowFavoritesOnly: isShowFavoritesOnly,
+              displayedProducts: productList,
+            ),
     );
   }
 }

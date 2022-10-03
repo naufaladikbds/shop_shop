@@ -6,15 +6,13 @@ import 'package:shop_shop/widgets/product_item.dart';
 
 class ProductsGrid extends StatelessWidget {
   bool isShowFavoritesOnly;
+  List<Product> displayedProducts;
 
-  ProductsGrid({this.isShowFavoritesOnly = false});
+  ProductsGrid(
+      {this.isShowFavoritesOnly = false, required this.displayedProducts});
 
   @override
   Widget build(BuildContext context) {
-    final productsData = Provider.of<ProductsProvider>(context);
-    final List<Product> displayedProducts =
-        isShowFavoritesOnly ? productsData.favoriteItems : productsData.items;
-
     return GridView.builder(
       padding: const EdgeInsets.all(8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
