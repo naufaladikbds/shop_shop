@@ -53,11 +53,24 @@ class ManageProductScreen extends StatelessWidget {
               Product product = products[i];
 
               return Dismissible(
-                onDismissed: (direction) {
+                onDismissed: (direction) async {
                   switch (direction) {
                     case DismissDirection.startToEnd:
-                      productsProvider.removeProduct(product.id);
-                      break;
+                      try {
+                        await productsProvider.removeProduct(product.id);
+                        break;
+                      } catch (e) {
+                        print(e);
+                        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Failed to remove product "${product.title}"'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        break;
+                      }
                     default:
                       break;
                   }
@@ -68,7 +81,7 @@ class ManageProductScreen extends StatelessWidget {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       title: Text(
-                          'Remove product "${product.title}" permanently?'),
+                          'Remove product "${product.title}" permanently from database?'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
@@ -105,7 +118,7 @@ class ManageProductScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                key: ValueKey(product.id),
+                key: UniqueKey(),
                 child: Container(
                   height: 60,
                   child: Card(
