@@ -161,23 +161,18 @@ class ProductsProvider with ChangeNotifier {
     Uri parsedUrl = Uri.parse('$hostUrl/products/${productId}.json');
     final targetProductIndex =
         _items.indexWhere((element) => element.id == productId);
+    Product? targetProduct = _items.elementAt(targetProductIndex);
 
-    try {
-      final response = await http.delete(parsedUrl);
-      if (response.statusCode >= 400) {
-        print(1);
-        throw HttpException(message: 'Something happened boiiii');
-      } else {
-        _items.removeAt(targetProductIndex);
-      }
-    } catch (e) {
-      print(2);
-      print(e.toString());
-      print(3);
-      rethrow;
-    }
-
+    _items.removeAt(targetProductIndex);
+    final response = await http.delete(parsedUrl);
     notifyListeners();
+    if (response.statusCode >= 400) {
+      _items.insert(targetProductIndex, targetProduct);
+      notifyListeners();
+      print('reeee');
+      throw HttpException(message: 'Something happened boi');
+    }
+    targetProduct = null;
   }
 
   // void toggleShowFavoritesOnly() {
