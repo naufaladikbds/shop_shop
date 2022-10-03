@@ -26,7 +26,14 @@ class ProductItem extends StatelessWidget {
                 color: Color.fromARGB(255, 255, 144, 212),
               ),
             ),
-            onPressed: productProvider.toggleFavorite,
+            onPressed: () {
+              productProvider.toggleFavorite().catchError((e) {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Network Failure: $e')),
+                );
+              });
+            },
           ),
           trailing: IconButton(
             icon: Icon(
