@@ -28,14 +28,18 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
   @override
   void didChangeDependencies() {
+    print('didChangeDependencies run');
     if (isInit == false) {
-      isLoading = true;
-
+      setState(() {
+        isLoading = true;
+      });
       final productsProvider = Provider.of<ProductsProvider>(context);
       productsProvider
           .fetchProducts()
-          .then((_) => productList = productsProvider.items)
-          .then((_) => isLoading = false);
+          .then((_) => productList = productsProvider.items);
+      setState(() {
+        isLoading = false;
+      });
     }
     isInit = true;
 
