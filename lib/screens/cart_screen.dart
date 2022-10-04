@@ -82,8 +82,22 @@ class CartOverview extends StatelessWidget {
                   ),
                   onPressed: () {
                     orderProvider
-                        .addToOrder(cartProvider.items.values.toList());
-                    cartProvider.emptyCart();
+                        .addToOrder(cartProvider.items.values.toList())
+                        .then((value) {
+                      cartProvider.emptyCart();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Order placed successfully'),
+                        ),
+                      );
+                    }).catchError((e) {
+                      print(e);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to add order: $e'),
+                        ),
+                      );
+                    });
                   },
                   child: const Text('Order'),
                 ),
