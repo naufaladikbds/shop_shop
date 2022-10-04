@@ -6,8 +6,40 @@ import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/orders_provider.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
 
-class OrdersScreen extends StatelessWidget {
+class OrdersScreen extends StatefulWidget {
   static const routeName = 'order';
+
+  @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  bool isError = false;
+  String errorMessage = '';
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    startFetchOrder();
+    super.initState();
+  }
+
+  void startFetchOrder() {
+    setState(() {
+      isLoading = true;
+    });
+    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+    ordersProvider.fetchOrders().then((value) {
+      isError = false;
+    }).catchError((e) {
+      errorMessage = e.toString();
+      isError = true;
+    }).whenComplete(() {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,18 +51,50 @@ class OrdersScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Order History'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (ctx, i) {
-                OrderItem order = orderList[i];
-                return OrderCard(order: order);
-              },
-              itemCount: orderList.length,
-            ),
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () => Future(startFetchOrder),
+        child: isError || isLoading
+            ? SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    bottom: 50,
+                    left: 40,
+                    right: 40,
+                  ),
+                  height: MediaQuery.of(context).size.height - 200,
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (isLoading) CircularProgressIndicator(),
+                      if (isError) ...[
+                        Text(errorMessage),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            startFetchOrder();
+                          },
+                          child: Text('REFRESH'),
+                        ),
+                      ]
+                    ],
+                  ),
+                ),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemBuilder: (ctx, i) {
+                        OrderItem order = orderList[i];
+                        return OrderCard(order: order);
+                      },
+                      itemCount: orderList.length,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
