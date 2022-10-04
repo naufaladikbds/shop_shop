@@ -28,10 +28,11 @@ class ProductItem extends StatelessWidget {
             ),
             onPressed: () {
               productProvider.toggleFavorite().catchError((e) {
-                ScaffoldMessenger.of(context).clearSnackBars();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Network Failure: $e')),
-                );
+                ScaffoldMessenger.of(context)
+                  ..clearSnackBars()
+                  ..showSnackBar(
+                    SnackBar(content: Text('Network Failure: $e')),
+                  );
               });
             },
           ),
