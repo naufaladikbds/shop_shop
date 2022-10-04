@@ -28,7 +28,7 @@ class Product with ChangeNotifier {
     isFavorite = !isFavorite;
     notifyListeners();
 
-    Uri parsedUrl = Uri.parse('$hostUrl/products/$id.jso');
+    Uri parsedUrl = Uri.parse('$hostUrl/products/$id.json');
     final req = {'isFavorite': isFavorite};
 
     try {
