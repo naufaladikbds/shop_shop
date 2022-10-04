@@ -16,6 +16,7 @@ class EditProductScreen extends StatefulWidget {
   final double price;
   final String description;
   final String imageUrl;
+  final bool isFavorite;
 
   const EditProductScreen({
     Key? key,
@@ -24,6 +25,7 @@ class EditProductScreen extends StatefulWidget {
     this.price = 0,
     this.description = '',
     this.imageUrl = '',
+    this.isFavorite = false,
   }) : super(key: key);
 
   @override
@@ -51,6 +53,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     price: 0,
     description: '',
     imageUrl: '',
+    isFavorite: false,
   );
 
   @override
@@ -66,6 +69,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         description: widget.description,
         price: widget.price,
         imageUrl: widget.imageUrl,
+        isFavorite: widget.isFavorite,
       );
       imageCtrl.text = widget.imageUrl;
     }
@@ -144,6 +148,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               description: editedProduct.description,
                               price: editedProduct.price,
                               imageUrl: editedProduct.imageUrl,
+                              isFavorite: editedProduct.isFavorite,
                             );
                           },
                         ),
@@ -175,6 +180,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               price: double.parse(
                                   priceInput!.isEmpty ? '0.0' : priceInput),
                               imageUrl: editedProduct.imageUrl,
+                              isFavorite: editedProduct.isFavorite,
                             );
                           },
                         ),
@@ -193,6 +199,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               description: descInput ?? '',
                               price: editedProduct.price,
                               imageUrl: editedProduct.imageUrl,
+                              isFavorite: editedProduct.isFavorite,
                             );
                           },
                         ),
@@ -220,6 +227,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                     description: editedProduct.description,
                                     price: editedProduct.price,
                                     imageUrl: imageInput ?? '',
+                                    isFavorite: editedProduct.isFavorite,
                                   );
                                 },
                               ),

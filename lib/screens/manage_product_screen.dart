@@ -178,6 +178,7 @@ class ManageProductScreen extends StatelessWidget {
                                   price: product.price,
                                   description: product.description,
                                   imageUrl: product.imageUrl,
+                                  isFavorite: product.isFavorite,
                                 ),
                               );
                             },

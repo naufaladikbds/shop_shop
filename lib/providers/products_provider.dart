@@ -73,11 +73,12 @@ class ProductsProvider with ChangeNotifier {
             description: value['description'],
             price: value['price'],
             imageUrl: value['imageUrl'],
+            isFavorite: value['isFavorite'],
           ),
         );
       });
 
-      return Future.delayed(Duration(milliseconds: 400), () {
+      return Future.delayed(Duration(milliseconds: 0), () {
         _items = productList;
         notifyListeners();
       });

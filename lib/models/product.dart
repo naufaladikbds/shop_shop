@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop_shop/models/http_exception.dart';
 
 class Product with ChangeNotifier {
   final String id;
@@ -14,11 +18,33 @@ class Product with ChangeNotifier {
     required this.description,
     required this.price,
     required this.imageUrl,
-    this.isFavorite = false,
+    required this.isFavorite,
   });
 
-  void toggleFavorite() {
+  final String hostUrl =
+      'https://shop-shop-flutter-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+  Future<void> toggleFavorite() async {
     isFavorite = !isFavorite;
     notifyListeners();
+
+    Uri parsedUrl = Uri.parse('$hostUrl/products/$id.jso');
+    final req = {'isFavorite': isFavorite};
+
+    try {
+      final response = await http.patch(
+        parsedUrl,
+        body: json.encode(req),
+      );
+
+      final responseBody = jsonDecode(response.body);
+
+      print(responseBody);
+      print(response.statusCode);
+    } catch (e) {
+      isFavorite = !isFavorite;
+      notifyListeners();
+      throw HttpException(message: 'Caught Error: $e');
+    }
   }
 }
