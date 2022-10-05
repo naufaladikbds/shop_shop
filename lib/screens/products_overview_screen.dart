@@ -48,6 +48,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     return Scaffold(
       drawer: CustomDrawer(),
       appBar: AppBar(

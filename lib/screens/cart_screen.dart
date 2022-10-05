@@ -9,6 +9,7 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     final cartProvider = Provider.of<CartProvider>(context);
 
     Map<String, CartItem> cartItems = cartProvider.items;
@@ -55,6 +56,7 @@ class CartOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     final orderProvider = Provider.of<OrdersProvider>(
       context,
       listen: false,
@@ -122,6 +124,7 @@ class CartList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     return Expanded(
       child: Card(
         child: Padding(

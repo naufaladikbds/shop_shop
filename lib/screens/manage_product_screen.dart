@@ -14,8 +14,10 @@ class ManageProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     final productsProvider = Provider.of<ProductsProvider>(context);
     final products = productsProvider.items;
+    print('login');
 
     return Scaffold(
       drawer: CustomDrawer(),

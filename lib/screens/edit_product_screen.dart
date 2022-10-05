@@ -102,6 +102,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     final productProvider =
         Provider.of<ProductsProvider>(context, listen: false);
 

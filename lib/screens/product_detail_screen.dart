@@ -8,6 +8,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     String id = ModalRoute.of(context)?.settings.arguments as String;
     Product product = Provider.of<ProductsProvider>(context, listen: false)
         .searchItemById(id);

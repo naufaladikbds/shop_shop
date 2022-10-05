@@ -16,6 +16,7 @@ class IconWithBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: onPress,

@@ -11,6 +11,7 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     return Drawer(
       child: ListView(
         padding: EdgeInsets.all(0),

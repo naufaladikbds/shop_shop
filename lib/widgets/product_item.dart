@@ -7,6 +7,7 @@ import 'package:shop_shop/screens/product_detail_screen.dart';
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('login');
     final Product productProvider =
         Provider.of<Product>(context, listen: false);
     final CartProvider cartProvider =
