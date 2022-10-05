@@ -1,125 +1,75 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
+import 'package:shop_shop/models/http_exception.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
+import 'package:http/http.dart' as http;
 
 class OrdersProvider extends ChangeNotifier {
-  final List<OrderItem> _orderList = [
-    OrderItem(
-      id: '000',
-      orderList: [
-        CartItem(
-          id: '01',
-          title: "Sunday Bruh",
-          price: 192.84,
-          quantity: 5,
-        ),
-        CartItem(
-          id: '02',
-          title: "Action Figure",
-          price: 823.84,
-          quantity: 2,
-        ),
-      ],
-      totalPrice: 856.23,
-      orderDate: DateTime.now(),
-    ),
-    OrderItem(
-      id: '001',
-      orderList: [
-        CartItem(
-          id: '05',
-          title: "Item 1",
-          price: 192.84,
-          quantity: 5,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 2",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-        CartItem(
-          id: '06',
-          title: "Item 3",
-          price: 823.84,
-          quantity: 2,
-        ),
-      ],
-      totalPrice: 856.23,
-      orderDate: DateTime.now(),
-    ),
-  ];
+  final String hostUrl =
+      'https://shop-shop-flutter-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+  final List<OrderItem> _orderList = [];
+  bool hasError = false;
 
   List<OrderItem> get orderList {
     return [..._orderList];
   }
 
-  void addToOrder(List<CartItem> cartItems) {
+  Future<void> fetchOrders() async {
+    final Uri parsedUrl = Uri.parse('$hostUrl/orders.json');
+
+    try {
+      final response = await http.get(parsedUrl);
+      Map responseBody = jsonDecode(response.body);
+
+      if (responseBody.isNotEmpty) {
+        _orderList.clear();
+
+        responseBody.forEach((key, value) {
+          List<CartItem> tempList = [];
+
+          for (var item in value['orderList']) {
+            tempList.add(
+              CartItem(
+                id: item['id'],
+                title: item['title'],
+                price: item['price'],
+                quantity: item['quantity'],
+              ),
+            );
+          }
+
+          _orderList.insert(
+            0,
+            OrderItem(
+              id: key,
+              orderList: tempList,
+              totalPrice: value['totalPrice'],
+              orderDate: DateTime.parse(value['orderDate']),
+            ),
+          );
+        });
+        hasError = false;
+      } else {
+        hasError = true;
+        notifyListeners();
+        throw HttpException(message: 'No orders were found in the database');
+      }
+    } catch (e) {
+      hasError = true;
+
+      notifyListeners();
+      throw HttpException(message: e.toString());
+    }
+    notifyListeners();
+  }
+
+  Future<void> addToOrder(List<CartItem> cartItems) async {
+    final Uri parsedUrl = Uri.parse('$hostUrl/orders.json');
+
+    DateTime currentDate = DateTime.now();
+
     double totalCartPrice = 0;
     for (var item in cartItems) {
       totalCartPrice += item.price * item.quantity;
@@ -131,9 +81,39 @@ class OrdersProvider extends ChangeNotifier {
         id: DateTime.now().toString(),
         orderList: cartItems,
         totalPrice: totalCartPrice,
-        orderDate: DateTime.now(),
+        orderDate: currentDate,
       ),
     );
+
+    final requestBody = {
+      'orderList': cartItems
+          .map(
+            (e) => {
+              'id': e.id,
+              'title': e.title,
+              'price': e.price,
+              'quantity': e.quantity,
+            },
+          )
+          .toList(),
+      'totalPrice': totalCartPrice,
+      'orderDate': currentDate.toIso8601String(),
+    };
+
+    try {
+      final response = await http.post(
+        parsedUrl,
+        body: json.encode(requestBody),
+      );
+
+      final responseBody = json.decode(response.body);
+
+      print(responseBody);
+    } catch (e) {
+      _orderList.removeAt(0);
+      notifyListeners();
+      throw HttpException(message: e.toString());
+    }
 
     notifyListeners();
   }
