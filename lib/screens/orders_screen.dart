@@ -6,95 +6,99 @@ import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/orders_provider.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
 
-class OrdersScreen extends StatefulWidget {
-  static const routeName = 'order';
+class OrdersScreen extends StatelessWidget {
+  static const String routeName = '/orders';
 
-  @override
-  State<OrdersScreen> createState() => _OrdersScreenState();
-}
-
-class _OrdersScreenState extends State<OrdersScreen> {
-  bool isError = false;
-  String errorMessage = '';
-  bool isLoading = false;
-
-  @override
-  void initState() {
-    startFetchOrder();
-    super.initState();
-  }
-
-  void startFetchOrder() {
-    setState(() {
-      isLoading = true;
-    });
-    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
-    ordersProvider.fetchOrders().then((value) {
-      isError = false;
-    }).catchError((e) {
-      errorMessage = e.toString();
-      isError = true;
-    }).whenComplete(() {
-      setState(() {
-        isLoading = false;
-      });
-    });
-  }
+  // bool isError = false;
+  // String errorMessage = '';
+  // bool isLoading = false;
+  // void startFetchOrder() {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+  //   ordersProvider.fetchOrders().then((value) {
+  //     isError = false;
+  //   }).catchError((e) {
+  //     errorMessage = e.toString();
+  //     isError = true;
+  //   }).whenComplete(() {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final ordersProvider = Provider.of<OrdersProvider>(context);
-    final List<OrderItem> orderList = ordersProvider.orderList;
+    print('login');
+    // final ordersProvider = Provider.of<OrdersProvider>(context);
+    // final List<OrderItem> orderList = ordersProvider.orderList;
+    print('runssss');
 
     return Scaffold(
       drawer: CustomDrawer(),
       appBar: AppBar(
         title: Text('Order History'),
       ),
-      body: RefreshIndicator(
-        onRefresh: () => Future(startFetchOrder),
-        child: isError || isLoading
-            ? SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
-                child: Container(
-                  margin: EdgeInsets.only(
-                    bottom: 50,
-                    left: 40,
-                    right: 40,
-                  ),
-                  height: MediaQuery.of(context).size.height - 200,
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (isLoading) CircularProgressIndicator(),
-                      if (isError) ...[
-                        Text(errorMessage),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            startFetchOrder();
-                          },
-                          child: Text('REFRESH'),
+      body: FutureBuilder(
+        future:
+            Provider.of<OrdersProvider>(context, listen: false).fetchOrders(),
+        builder: (context, snapshot) {
+          print('runssss1');
+          return Consumer<OrdersProvider>(
+            builder: (context, value, child) {
+              print('runssss2');
+              return RefreshIndicator(
+                onRefresh: () => value.fetchOrders(),
+                child: value.hasError
+                    ? SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          margin: EdgeInsets.only(
+                            bottom: 50,
+                            left: 40,
+                            right: 40,
+                          ),
+                          height: MediaQuery.of(context).size.height - 200,
+                          width: double.infinity,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting)
+                                CircularProgressIndicator(),
+                              if (value.hasError) ...[
+                                Text(snapshot.error.toString()),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    value.fetchOrders();
+                                  },
+                                  child: Text('Refresh'),
+                                ),
+                              ]
+                            ],
+                          ),
                         ),
-                      ]
-                    ],
-                  ),
-                ),
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemBuilder: (ctx, i) {
-                        OrderItem order = orderList[i];
-                        return OrderCard(order: order);
-                      },
-                      itemCount: orderList.length,
-                    ),
-                  ),
-                ],
-              ),
+                      )
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              itemBuilder: (ctx, i) {
+                                OrderItem order = value.orderList[i];
+                                return OrderCard(order: order);
+                              },
+                              itemCount: value.orderList.length,
+                            ),
+                          ),
+                        ],
+                      ),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -116,6 +120,7 @@ class _OrderCardState extends State<OrderCard> {
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     return Card(
       child: Column(
         children: [
