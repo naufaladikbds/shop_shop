@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_shop/providers/auth_provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:shop_shop/providers/orders_provider.dart';
 import 'package:shop_shop/providers/products_provider.dart';
 import 'package:shop_shop/screens/cart_screen.dart';
 import 'package:shop_shop/screens/edit_product_screen.dart';
+import 'package:shop_shop/screens/login_screen.dart';
 import 'package:shop_shop/screens/manage_product_screen.dart';
 import 'package:shop_shop/screens/orders_screen.dart';
 import 'package:shop_shop/screens/product_detail_screen.dart';
@@ -18,11 +20,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('login');
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ProductsProvider()),
         ChangeNotifierProvider(create: (context) => CartProvider()),
-        ChangeNotifierProvider(create: (context) => OrdersProvider())
+        ChangeNotifierProvider(create: (context) => OrdersProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -31,7 +35,7 @@ class MyApp extends StatelessWidget {
           accentColor: Colors.blue,
           fontFamily: 'Lato',
         ),
-        initialRoute: ProductsOverviewScreen.routeName,
+        initialRoute: LoginScreen.routeName,
         routes: {
           ProductsOverviewScreen.routeName: (context) =>
               ProductsOverviewScreen(),
@@ -40,6 +44,7 @@ class MyApp extends StatelessWidget {
           OrdersScreen.routeName: (context) => OrdersScreen(),
           EditProductScreen.routeName: (context) => EditProductScreen(),
           ManageProductScreen.routeName: (context) => ManageProductScreen(),
+          LoginScreen.routeName: (context) => LoginScreen(),
         },
       ),
     );
