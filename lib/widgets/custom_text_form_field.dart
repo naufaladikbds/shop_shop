@@ -9,6 +9,7 @@ class CustomTextFormField extends StatelessWidget {
   final void Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
   final FocusNode? focusNode;
+  final bool obscureText;
   final int maxLines;
   final void Function(String?)? onSaved;
 
@@ -24,13 +25,16 @@ class CustomTextFormField extends StatelessWidget {
     this.maxLines = 1,
     this.initialValue,
     this.validator,
+    this.obscureText = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print('login');
     return Container(
       margin: EdgeInsets.only(top: 10),
       child: TextFormField(
+        obscureText: obscureText,
         validator: validator,
         initialValue: initialValue,
         onSaved: onSaved,
