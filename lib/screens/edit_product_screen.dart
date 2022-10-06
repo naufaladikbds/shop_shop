@@ -12,11 +12,11 @@ class EditProductScreen extends StatefulWidget {
   static const routeName = 'edit-product';
 
   final String? productId;
+  final String userId;
   final String title;
   final double price;
   final String description;
   final String imageUrl;
-  final bool isFavorite;
 
   const EditProductScreen({
     Key? key,
@@ -25,7 +25,7 @@ class EditProductScreen extends StatefulWidget {
     this.price = 0,
     this.description = '',
     this.imageUrl = '',
-    this.isFavorite = false,
+    required this.userId,
   }) : super(key: key);
 
   @override
@@ -49,11 +49,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   Product editedProduct = Product(
     id: '',
+    userId: '',
     title: '',
     price: 0,
     description: '',
     imageUrl: '',
-    isFavorite: false,
   );
 
   @override
@@ -65,11 +65,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
       editedProduct = Product(
         id: widget.productId!,
+        userId: widget.userId,
         title: widget.title,
         description: widget.description,
         price: widget.price,
         imageUrl: widget.imageUrl,
-        isFavorite: widget.isFavorite,
       );
       imageCtrl.text = widget.imageUrl;
     }
@@ -142,14 +142,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             FocusScope.of(context).requestFocus(priceFocus);
                           },
                           onSaved: (titleInput) {
-                            print('test3');
                             editedProduct = Product(
                               id: editedProduct.id,
+                              userId: widget.userId,
                               title: titleInput ?? '',
                               description: editedProduct.description,
                               price: editedProduct.price,
                               imageUrl: editedProduct.imageUrl,
-                              isFavorite: editedProduct.isFavorite,
                             );
                           },
                         ),
@@ -173,15 +172,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           onFieldSubmitted: (_) =>
                               FocusScope.of(context).requestFocus(descFocus),
                           onSaved: (priceInput) {
-                            print('test4');
                             editedProduct = Product(
                               id: editedProduct.id,
+                              userId: widget.userId,
                               title: editedProduct.title,
                               description: editedProduct.description,
                               price: double.parse(
                                   priceInput!.isEmpty ? '0.0' : priceInput),
                               imageUrl: editedProduct.imageUrl,
-                              isFavorite: editedProduct.isFavorite,
                             );
                           },
                         ),
@@ -193,14 +191,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           onFieldSubmitted: (_) => FocusScope.of(context)
                               .requestFocus(imageUrlFocus),
                           onSaved: (descInput) {
-                            print('test5');
                             editedProduct = Product(
                               id: editedProduct.id,
+                              userId: widget.userId,
                               title: editedProduct.title,
                               description: descInput ?? '',
                               price: editedProduct.price,
                               imageUrl: editedProduct.imageUrl,
-                              isFavorite: editedProduct.isFavorite,
                             );
                           },
                         ),
@@ -224,11 +221,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 onSaved: (imageInput) {
                                   editedProduct = Product(
                                     id: editedProduct.id,
+                                    userId: widget.userId,
                                     title: editedProduct.title,
                                     description: editedProduct.description,
                                     price: editedProduct.price,
                                     imageUrl: imageInput ?? '',
-                                    isFavorite: editedProduct.isFavorite,
                                   );
                                 },
                               ),
@@ -298,11 +295,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             setState(() {
                               isLoading = true;
                             });
-                            print('start');
 
                             try {
                               await productProvider.addProduct(
                                 id: DateTime.now().toString(),
+                                userId: widget.userId,
                                 title: editedProduct.title,
                                 description: editedProduct.description,
                                 price: editedProduct.price,
@@ -310,7 +307,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                         !isValid
                                     ? 'https://rimatour.com/wp-content/uploads/2017/09/No-image-found.jpg'
                                     : editedProduct.imageUrl,
-                                isFavorite: false,
                               );
                             } catch (error) {
                               await showDialog(
