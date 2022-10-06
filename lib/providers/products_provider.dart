@@ -65,8 +65,15 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchProducts(
       {String? userId, bool filterByUser = false}) async {
-    final Uri parsedUrlFetch =
-        Uri.parse('$hostUrl/products.json?auth=${token}');
+    final Uri parsedUrlFetch;
+
+    if (filterByUser) {
+      parsedUrlFetch = Uri.parse(
+          '$hostUrl/products.json?auth=${token}&orderBy="userId"&equalTo="$userId"');
+    } else {
+      parsedUrlFetch = Uri.parse('$hostUrl/products.json?auth=${token}');
+    }
+
     final Uri parsedUrlGetFavorites =
         Uri.parse('$hostUrl/userFavorites/$userId.json?auth=${token}');
 
@@ -97,35 +104,18 @@ class ProductsProvider with ChangeNotifier {
       }
 
       responseBody?.forEach((key, value) {
-        if (filterByUser) {
-          if (userId == value['userId']) {
-            productList.add(
-              Product(
-                id: key,
-                userId: userId!,
-                title: value['title'],
-                description: value['description'],
-                price: value['price'],
-                imageUrl: value['imageUrl'],
-                isFavorite: favoritedProductIds.contains(key),
-                token: token,
-              ),
-            );
-          }
-        } else {
-          productList.add(
-            Product(
-              id: key,
-              userId: value['userId'],
-              title: value['title'],
-              description: value['description'],
-              price: value['price'],
-              imageUrl: value['imageUrl'],
-              isFavorite: favoritedProductIds.contains(key),
-              token: token,
-            ),
-          );
-        }
+        productList.add(
+          Product(
+            id: key,
+            userId: value['userId'],
+            title: value['title'],
+            description: value['description'],
+            price: value['price'],
+            imageUrl: value['imageUrl'],
+            isFavorite: favoritedProductIds.contains(key),
+            token: token,
+          ),
+        );
       });
 
       return Future.delayed(Duration(milliseconds: 0), () {
