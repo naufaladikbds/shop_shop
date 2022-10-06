@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/models/product.dart';
+import 'package:shop_shop/providers/auth_provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:shop_shop/screens/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print('login');
+    print('bobbin');
     final Product productProvider =
         Provider.of<Product>(context, listen: false);
     final CartProvider cartProvider =
         Provider.of<CartProvider>(context, listen: false);
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     return ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(15)),
       child: GridTile(
         footer: GridTileBar(
-          backgroundColor: Color.fromRGBO(1, 1, 1, 0.8),
+          backgroundColor: Color.fromRGBO(1, 1, 1, 0.80),
           leading: IconButton(
             icon: Consumer<Product>(
               builder: (context, value, child) => Icon(
@@ -28,11 +31,13 @@ class ProductItem extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              productProvider.toggleFavorite().catchError((e) {
+              productProvider
+                  .toggleFavorite(userId: authProvider.userId!)
+                  .catchError((e) {
                 ScaffoldMessenger.of(context)
                   ..clearSnackBars()
                   ..showSnackBar(
-                    SnackBar(content: Text('Network Failure: $e')),
+                    SnackBar(content: Text('Network Failure $e')),
                   );
               });
             },
