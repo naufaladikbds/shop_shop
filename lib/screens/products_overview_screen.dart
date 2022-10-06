@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/models/product.dart';
+import 'package:shop_shop/providers/auth_provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:shop_shop/providers/products_provider.dart';
 import 'package:shop_shop/screens/cart_screen.dart';
+import 'package:shop_shop/screens/login_screen.dart';
 import 'package:shop_shop/screens/orders_screen.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
 import 'package:shop_shop/widgets/icon_with_badge.dart';
@@ -24,6 +26,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool isShowFavoritesOnly = false;
   bool isInit = false;
   bool isLoading = false;
+  String errorMessage = '';
   late List<Product> productList = [];
 
   @override
@@ -34,13 +37,21 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         isLoading = true;
       });
       final productsProvider = Provider.of<ProductsProvider>(context);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
       productsProvider
-          .fetchProducts()
-          .then((_) => productList = productsProvider.items);
+          .fetchProducts(userId: authProvider.userId)
+          .catchError((e) {
+        setState(() {
+          errorMessage = e.toString();
+        });
+      }).then((_) => productList = productsProvider.items);
       setState(() {
         isLoading = false;
+        errorMessage = '';
       });
     }
+
     isInit = true;
 
     super.didChangeDependencies();
@@ -98,17 +109,27 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
-      body: isLoading
+      body: isLoading || errorMessage.isNotEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text('Fetching data...'),
+                  if (isLoading) ...[
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text('Fetching data....'),
+                  ],
+                  if (errorMessage.isNotEmpty) ...[
+                    Text(errorMessage),
+                    SizedBox(height: 15),
+                    ElevatedButton(
+                        onPressed: () => Navigator.pushReplacementNamed(
+                            context, LoginScreen.routeName),
+                        child: Text('Login'))
+                  ],
                 ],
               ),
             )
