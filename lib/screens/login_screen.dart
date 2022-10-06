@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/auth_provider.dart';
+import 'package:shop_shop/screens/products_overview_screen.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
 import 'package:shop_shop/widgets/custom_text_form_field.dart';
 
@@ -19,14 +20,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
 
-  var emailCtrl = TextEditingController();
-  var passCtrl = TextEditingController();
-  var verifyPassCtrl = TextEditingController();
+  var emailCtrl = TextEditingController(text: 'naufaladi1000@gmail.com');
+  var passCtrl = TextEditingController(text: '123123');
+  var verifyPassCtrl = TextEditingController(text: '123123');
 
   String? emailValidator(String? input) {
     if (input == null || input.isEmpty) {
       return 'Please enter your e-mail address';
-    } else if (!input.contains(RegExp(r'[@(.co)]'))) {
+    } else if (!input.contains('co') ||
+        !input.contains('@') ||
+        !input.contains('.')) {
       return 'Please enter a valid e-mail address';
     } else {
       return null;
@@ -64,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
               colors: [
-                Colors.black87,
+                Colors.grey[200]!,
                 Colors.amber[800]!,
               ],
               begin: Alignment.topCenter,
@@ -81,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(
                 'E-Shop',
                 style: TextStyle(
-                  color: Colors.grey[200],
+                  color: Colors.grey[800],
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                 ),
@@ -141,10 +144,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 25),
                   StatefulBuilder(
                     builder: (context, childSetState) {
-                      print(isLoading);
-
                       return ElevatedButton(
                         style: ElevatedButton.styleFrom(
+                          primary: currentAuthMode == AuthMode.signUp
+                              ? Colors.grey[800]
+                              : Colors.amber,
                           fixedSize: Size(100, 35),
                           padding: EdgeInsets.only(
                             top: 16,
@@ -153,23 +157,38 @@ class _LoginScreenState extends State<LoginScreen> {
                             left: 20,
                           ),
                         ),
-                        onPressed: () async {
-                          childSetState(() {
-                            isLoading = true;
-                          });
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                childSetState(() {
+                                  isLoading = true;
+                                });
 
-                          if (formKey.currentState!.validate()) {
-                            await Future.delayed(Duration(seconds: 1), () {
-                              authProvider.signUp(
-                                  emailCtrl.text, passCtrl.text);
-                            });
-                            print('success');
-                          }
+                                if (formKey.currentState!.validate()) {
+                                  try {
+                                    if (currentAuthMode == AuthMode.signUp) {
+                                      await authProvider.signUp(
+                                        emailCtrl.text,
+                                        passCtrl.text,
+                                      );
+                                    }
+                                    if (currentAuthMode == AuthMode.login) {
+                                      await authProvider
+                                          .login(emailCtrl.text, passCtrl.text)
+                                          .then((_) {
+                                        Navigator.pushReplacementNamed(context,
+                                            ProductsOverviewScreen.routeName);
+                                      });
+                                    }
+                                  } catch (e) {
+                                    showAuthErrorDialog('Error', e);
+                                  }
+                                }
 
-                          childSetState(() {
-                            isLoading = false;
-                          });
-                        },
+                                childSetState(() {
+                                  isLoading = false;
+                                });
+                              },
                         child: isLoading
                             ? SizedBox(
                                 width: 15,
@@ -185,7 +204,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : 'Sign Up',
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: Colors.grey[700],
+                                  color: currentAuthMode == AuthMode.login
+                                      ? Colors.grey[700]
+                                      : Colors.amber,
                                 ),
                               ),
                       );
@@ -201,23 +222,39 @@ class _LoginScreenState extends State<LoginScreen> {
                     : AuthMode.login;
                 setState(() {});
               },
-              style: TextButton.styleFrom(
-                textStyle: TextStyle(
-                  decoration: TextDecoration.underline,
-                ),
-              ),
               child: Text(
                 currentAuthMode == AuthMode.login
                     ? 'or sign up instead'
                     : 'or login instead',
                 style: TextStyle(
                   color: Colors.amber[600],
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void showAuthErrorDialog(String errorTitle, Object e) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(errorTitle),
+          content: Text('$e'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
