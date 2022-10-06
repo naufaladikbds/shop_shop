@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_shop/providers/auth_provider.dart';
 import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:shop_shop/providers/orders_provider.dart';
 
@@ -57,10 +58,8 @@ class CartOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('login');
-    final orderProvider = Provider.of<OrdersProvider>(
-      context,
-      listen: false,
-    );
+    final orderProvider = Provider.of<OrdersProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     return Card(
       child: Padding(
@@ -84,7 +83,8 @@ class CartOverview extends StatelessWidget {
                   ),
                   onPressed: () {
                     orderProvider
-                        .addToOrder(cartProvider.items.values.toList())
+                        .addToOrder(cartProvider.items.values.toList(),
+                            userId: authProvider.userId!)
                         .then((value) {
                       cartProvider.emptyCart();
                       ScaffoldMessenger.of(context).showSnackBar(
