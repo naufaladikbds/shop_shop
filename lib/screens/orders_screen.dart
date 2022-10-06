@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_shop/providers/auth_provider.dart';
 import 'package:shop_shop/providers/orders_provider.dart';
+import 'package:shop_shop/screens/login_screen.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
 
 class OrdersScreen extends StatelessWidget {
@@ -34,6 +36,8 @@ class OrdersScreen extends StatelessWidget {
     print('login');
     // final ordersProvider = Provider.of<OrdersProvider>(context);
     // final List<OrderItem> orderList = ordersProvider.orderList;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     print('runssss');
 
     return Scaffold(
@@ -42,15 +46,16 @@ class OrdersScreen extends StatelessWidget {
         title: Text('Order History'),
       ),
       body: FutureBuilder(
-        future:
-            Provider.of<OrdersProvider>(context, listen: false).fetchOrders(),
+        future: Provider.of<OrdersProvider>(context, listen: false)
+            .fetchOrders(userId: authProvider.userId!),
         builder: (context, snapshot) {
           print('runssss1');
           return Consumer<OrdersProvider>(
             builder: (context, value, child) {
               print('runssss2');
               return RefreshIndicator(
-                onRefresh: () => value.fetchOrders(),
+                onRefresh: () =>
+                    value.fetchOrders(userId: authProvider.userId!),
                 child: value.hasError
                     ? SingleChildScrollView(
                         physics: AlwaysScrollableScrollPhysics(),
@@ -72,9 +77,17 @@ class OrdersScreen extends StatelessWidget {
                                 Text(snapshot.error.toString()),
                                 SizedBox(height: 20),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    value.fetchOrders();
-                                  },
+                                  onPressed: snapshot.error
+                                          .toString()
+                                          .contains('expire')
+                                      ? () {
+                                          Navigator.pushReplacementNamed(
+                                              context, LoginScreen.routeName);
+                                        }
+                                      : () {
+                                          value.fetchOrders(
+                                              userId: authProvider.userId!);
+                                        },
                                   child: Text('Refresh'),
                                 ),
                               ]
