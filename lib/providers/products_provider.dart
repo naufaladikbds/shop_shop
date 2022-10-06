@@ -11,6 +11,10 @@ class ProductsProvider with ChangeNotifier {
   final String hostUrl =
       'https://shop-shop-flutter-default-rtdb.asia-southeast1.firebasedatabase.app';
 
+  final String? token;
+
+  ProductsProvider({this.token});
+
   List<Product> _items = [
     // Product(
     //   id: 'p1',
@@ -55,35 +59,83 @@ class ProductsProvider with ChangeNotifier {
     return [..._items];
   }
 
-  Future<void> fetchProducts() async {
-    final Uri parsedUrl = Uri.parse('$hostUrl/products.json');
+  List<Product> userItems(String? userId) {
+    return _items.where((element) => element.userId == userId).toList();
+  }
+
+  Future<void> fetchProducts(
+      {String? userId, bool filterByUser = false}) async {
+    final Uri parsedUrlFetch =
+        Uri.parse('$hostUrl/products.json?auth=${token}');
+    final Uri parsedUrlGetFavorites =
+        Uri.parse('$hostUrl/userFavorites/$userId.json?auth=${token}');
 
     try {
-      final response = await http.get(parsedUrl);
+      final response = await http.get(parsedUrlFetch);
 
       final Map? responseBody = json.decode(response.body);
 
-      List<Product> productList = [];
+      if (responseBody?['error'] != null &&
+          (responseBody?['error'] as String).contains('denied')) {
+        throw HttpException(
+            message: 'Token expired, please login to refresh your session');
+      }
+
+      print(responseBody);
+
+      final List<Product> productList = [];
+      final List<String> favoritedProductIds = [];
+      if (userId != null) {
+        await http.get(parsedUrlGetFavorites).then((res) {
+          Map? responseBody = jsonDecode(res.body);
+          if (responseBody != null) {
+            responseBody.forEach((key, value) {
+              value == true ? favoritedProductIds.add(key) : null;
+            });
+          }
+        });
+      }
 
       responseBody?.forEach((key, value) {
-        productList.add(
-          Product(
-            id: key,
-            title: value['title'],
-            description: value['description'],
-            price: value['price'],
-            imageUrl: value['imageUrl'],
-            isFavorite: value['isFavorite'],
-          ),
-        );
+        if (filterByUser) {
+          if (userId == value['userId']) {
+            productList.add(
+              Product(
+                id: key,
+                userId: userId!,
+                title: value['title'],
+                description: value['description'],
+                price: value['price'],
+                imageUrl: value['imageUrl'],
+                isFavorite: favoritedProductIds.contains(key),
+                token: token,
+              ),
+            );
+          }
+        } else {
+          productList.add(
+            Product(
+              id: key,
+              userId: value['userId'],
+              title: value['title'],
+              description: value['description'],
+              price: value['price'],
+              imageUrl: value['imageUrl'],
+              isFavorite: favoritedProductIds.contains(key),
+              token: token,
+            ),
+          );
+        }
       });
 
       return Future.delayed(Duration(milliseconds: 0), () {
         _items = productList;
+
         notifyListeners();
       });
     } catch (e) {
       print(e.toString());
+      rethrow;
     }
   }
 
@@ -106,16 +158,16 @@ class ProductsProvider with ChangeNotifier {
     required String description,
     required String title,
     required String imageUrl,
-    required bool isFavorite,
+    required String userId,
   }) async {
-    final Uri parsedUrl = Uri.parse('$hostUrl/products.json');
+    final Uri parsedUrl = Uri.parse('$hostUrl/products.json?auth=${token}');
 
     Map<String, dynamic> requestBody = {
       'title': title,
       'description': description,
       'price': price,
       'imageUrl': imageUrl,
-      'isFavorite': isFavorite,
+      'userId': userId,
     };
 
     var res = await http.post(
@@ -123,15 +175,15 @@ class ProductsProvider with ChangeNotifier {
       body: json.encode(requestBody),
     );
 
-    return Future.delayed(Duration(seconds: 1), () {
+    return Future.delayed(Duration(seconds: 0), () {
       _items.add(
         Product(
           id: json.decode(res.body)['name'],
+          userId: userId,
           title: title,
           description: description,
           price: price,
           imageUrl: imageUrl,
-          isFavorite: isFavorite,
         ),
       );
       notifyListeners();
@@ -139,7 +191,8 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> editProduct(Product product) async {
-    Uri parsedUrl = Uri.parse('$hostUrl/products/${product.id}.json');
+    Uri parsedUrl =
+        Uri.parse('$hostUrl/products/${product.id}.json?auth=${token}');
 
     final requestBody = {
       'title': product.title,
@@ -155,11 +208,13 @@ class ProductsProvider with ChangeNotifier {
     int existingItemIndex = _items.indexWhere((e) => e.id == product.id);
     _items.removeWhere((e) => e.id == product.id);
     _items.insert(existingItemIndex, product);
+
     notifyListeners();
   }
 
   Future<void> removeProduct(String productId) async {
-    Uri parsedUrl = Uri.parse('$hostUrl/products/${productId}.json');
+    Uri parsedUrl =
+        Uri.parse('$hostUrl/products/${productId}.json?auth=${token}');
     final targetProductIndex =
         _items.indexWhere((element) => element.id == productId);
     Product? targetProduct = _items.elementAt(targetProductIndex);
@@ -170,7 +225,6 @@ class ProductsProvider with ChangeNotifier {
     if (response.statusCode >= 400) {
       _items.insert(targetProductIndex, targetProduct);
       notifyListeners();
-      print('reeee');
       throw HttpException(message: 'Something happened boi');
     }
     targetProduct = null;
