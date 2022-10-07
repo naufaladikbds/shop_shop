@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/providers/auth_provider.dart';
@@ -20,31 +19,48 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print('login');
+    print('MAIN RUNS');
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ProductsProvider()),
-        ChangeNotifierProvider(create: (context) => CartProvider()),
-        ChangeNotifierProvider(create: (context) => OrdersProvider()),
-        ChangeNotifierProvider(create: (context) => AuthProvider())
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.amber,
-          accentColor: Colors.blue,
-          fontFamily: 'Lato',
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+          create: (context) => ProductsProvider(),
+          update: (context, authProvider, previous) =>
+              ProductsProvider(token: authProvider.token),
         ),
-        initialRoute: LoginScreen.routeName,
-        routes: {
-          ProductsOverviewScreen.routeName: (context) =>
-              ProductsOverviewScreen(),
-          ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
-          CartScreen.routeName: (context) => CartScreen(),
-          OrdersScreen.routeName: (context) => OrdersScreen(),
-          EditProductScreen.routeName: (context) => EditProductScreen(),
-          ManageProductScreen.routeName: (context) => ManageProductScreen(),
-          LoginScreen.routeName: (context) => LoginScreen(),
+        ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
+          create: (context) => OrdersProvider(),
+          update: (context, authProvider, previous) =>
+              OrdersProvider(token: authProvider.token),
+        ),
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+      ],
+      child: Consumer<AuthProvider>(
+        builder: (context, value, child) {
+          print('AUTH CHANGES TO: ${value.isAuth}');
+
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              primarySwatch: Colors.amber,
+              accentColor: Colors.blue,
+              fontFamily: 'Lato',
+            ),
+            home: value.isAuth ? ProductsOverviewScreen() : LoginScreen(),
+            routes: {
+              ProductsOverviewScreen.routeName: (context) =>
+                  ProductsOverviewScreen(),
+              ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
+              CartScreen.routeName: (context) => CartScreen(),
+              OrdersScreen.routeName: (context) => OrdersScreen(),
+              EditProductScreen.routeName: (context) => EditProductScreen(
+                    userId: Provider.of<AuthProvider>(context, listen: false)
+                        .userId!,
+                  ),
+              ManageProductScreen.routeName: (context) => ManageProductScreen(),
+              LoginScreen.routeName: (context) => LoginScreen(),
+            },
+          );
         },
       ),
     );
