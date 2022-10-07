@@ -118,11 +118,9 @@ class ProductsProvider with ChangeNotifier {
         );
       });
 
-      return Future.delayed(Duration(milliseconds: 0), () {
-        _items = productList;
+      _items = productList;
 
-        notifyListeners();
-      });
+      notifyListeners();
     } catch (e) {
       print(e.toString());
       rethrow;
