@@ -47,7 +47,7 @@ class OrdersScreen extends StatelessWidget {
       ),
       body: FutureBuilder(
         future: Provider.of<OrdersProvider>(context, listen: false)
-            .fetchOrders(userId: authProvider.userId!),
+            .fetchOrders(userId: authProvider.userId),
         builder: (context, snapshot) {
           print('runssss1');
           return Consumer<OrdersProvider>(
