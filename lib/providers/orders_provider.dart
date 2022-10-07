@@ -6,6 +6,10 @@ import 'package:shop_shop/providers/cart_provider.dart';
 import 'package:http/http.dart' as http;
 
 class OrdersProvider extends ChangeNotifier {
+  final String? token;
+
+  OrdersProvider({this.token});
+
   final String hostUrl =
       'https://shop-shop-flutter-default-rtdb.asia-southeast1.firebasedatabase.app';
 
@@ -16,15 +20,27 @@ class OrdersProvider extends ChangeNotifier {
     return [..._orderList];
   }
 
-  Future<void> fetchOrders() async {
-    final Uri parsedUrl = Uri.parse('$hostUrl/orders.json');
+  Future<void> fetchOrders({required String? userId}) async {
+    final Uri parsedUrl =
+        Uri.parse('$hostUrl/orders/$userId.json?auth=${token}');
 
     try {
       final response = await http.get(parsedUrl);
-      Map responseBody = jsonDecode(response.body);
+      final Map? responseBody = jsonDecode(response.body);
+
+      if (responseBody == null) {
+        throw HttpException(message: 'You have not made any orders');
+      }
+
+      if (responseBody['error'] != null &&
+          (responseBody['error'] as String).contains('denied')) {
+        throw HttpException(
+            message: 'Token expired, please login to refresh your session');
+      }
 
       if (responseBody.isNotEmpty) {
         _orderList.clear();
+        print(responseBody);
 
         responseBody.forEach((key, value) {
           List<CartItem> tempList = [];
@@ -65,8 +81,10 @@ class OrdersProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addToOrder(List<CartItem> cartItems) async {
-    final Uri parsedUrl = Uri.parse('$hostUrl/orders.json');
+  Future<void> addToOrder(List<CartItem> cartItems,
+      {required String userId}) async {
+    final Uri parsedUrl =
+        Uri.parse('$hostUrl/orders/$userId.json?auth=${token}');
 
     DateTime currentDate = DateTime.now();
 
