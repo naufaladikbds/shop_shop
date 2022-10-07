@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_shop/models/product.dart';
+import 'package:shop_shop/providers/auth_provider.dart';
 import 'package:shop_shop/providers/products_provider.dart';
 import 'package:shop_shop/screens/edit_product_screen.dart';
 import 'package:shop_shop/widgets/custom_drawer.dart';
@@ -16,8 +17,11 @@ class ManageProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     print('login');
     final productsProvider = Provider.of<ProductsProvider>(context);
-    final products = productsProvider.items;
-    print('login');
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    final products = productsProvider.userItems(authProvider.userId);
+
+    print('userProduct length is ${products.length}');
 
     return Scaffold(
       drawer: CustomDrawer(),
@@ -31,7 +35,8 @@ class ManageProductScreen extends StatelessWidget {
                 showModalBottomSheet(
                   isScrollControlled: true,
                   context: context,
-                  builder: (ctx) => EditProductScreen(),
+                  builder: (ctx) =>
+                      EditProductScreen(userId: authProvider.userId!),
                 );
               },
               icon: Icon(
@@ -45,7 +50,10 @@ class ManageProductScreen extends StatelessWidget {
         displacement: 50,
         onRefresh: () {
           productsProvider.clearProducts();
-          return productsProvider.fetchProducts();
+          return productsProvider.fetchProducts(
+            userId: authProvider.userId!,
+            filterByUser: true,
+          );
         },
         child: Container(
           padding: EdgeInsets.all(8),
@@ -176,11 +184,11 @@ class ManageProductScreen extends StatelessWidget {
                                 context: context,
                                 builder: (ctx) => EditProductScreen(
                                   productId: product.id,
+                                  userId: authProvider.userId!,
                                   title: product.title,
                                   price: product.price,
                                   description: product.description,
                                   imageUrl: product.imageUrl,
-                                  isFavorite: product.isFavorite,
                                 ),
                               );
                             },
