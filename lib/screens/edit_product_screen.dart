@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:shop_shop/widgets/custom_text_form_field.dart';
 
 class EditProductScreen extends StatefulWidget {
-  static const routeName = 'edit-product';
+  static const routeName = '/edit-product';
 
   final String? productId;
   final String userId;
