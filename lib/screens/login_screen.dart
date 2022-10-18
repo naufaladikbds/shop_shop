@@ -167,10 +167,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (formKey.currentState!.validate()) {
                                   try {
                                     if (currentAuthMode == AuthMode.signUp) {
-                                      await authProvider.signUp(
-                                        emailCtrl.text,
-                                        passCtrl.text,
-                                      );
+                                      try {
+                                        await authProvider
+                                            .signUp(
+                                          emailCtrl.text,
+                                          passCtrl.text,
+                                        )
+                                            .then((signUpSuccess) {
+                                          if (signUpSuccess) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Signup Success, please login with your newly created account',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        });
+                                      } catch (e) {
+                                        showAuthErrorDialog(
+                                            'Error Signing Up', e);
+                                      }
                                     }
                                     if (currentAuthMode == AuthMode.login) {
                                       await authProvider
