@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -9,6 +10,7 @@ class AuthProvider with ChangeNotifier {
   String? _userEmail;
   String? _token;
   DateTime? _expiryDate;
+  Timer? _authTimer;
 
   String? get userId {
     if (_userId != null && _expiryDate!.isAfter(DateTime.now())) {
@@ -30,7 +32,7 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<bool> signUp(String email, String password) async {
     String url =
         'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyASCk4VDEJm40D56RZXpElm7ldPAIO2RL8';
 
@@ -47,6 +49,7 @@ class AuthProvider with ChangeNotifier {
       );
       var resBody = jsonDecode(res.body);
       Map? resError = resBody['error'];
+      print('RESSBODY ISSS:::');
       print(resBody);
 
       if (resError != null) {
@@ -56,6 +59,8 @@ class AuthProvider with ChangeNotifier {
       }
 
       notifyListeners();
+
+      return true;
     } on HttpException catch (e) {
       print(e);
       rethrow;
@@ -69,7 +74,23 @@ class AuthProvider with ChangeNotifier {
     _userEmail = null;
     _userId = null;
     _expiryDate = null;
+    _authTimer == null;
+
     notifyListeners();
+  }
+
+  void autoLogout() {
+    if (_authTimer != null) {
+      _authTimer!.cancel();
+    }
+
+    int secondsToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
+
+    print('seconds to expiry: $secondsToExpiry');
+    _authTimer = Timer(
+      Duration(seconds: secondsToExpiry),
+      logout,
+    );
   }
 
   Future<void> login(String email, String password) async {
@@ -106,6 +127,7 @@ class AuthProvider with ChangeNotifier {
           seconds: int.parse(resBody['expiresIn']),
         ),
       );
+      autoLogout();
 
       notifyListeners();
     } on HttpException catch (e) {
