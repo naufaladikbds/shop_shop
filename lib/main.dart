@@ -23,23 +23,23 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
-        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
-          create: (context) => ProductsProvider(),
-          update: (context, authProvider, previous) =>
-              ProductsProvider(token: authProvider.token),
-        ),
         ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
           create: (context) => OrdersProvider(),
           update: (context, authProvider, previous) =>
               OrdersProvider(token: authProvider.token),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+          create: (context) => ProductsProvider(),
+          update: (context, authProvider, previous) =>
+              ProductsProvider(token: authProvider.token),
         ),
         ChangeNotifierProvider(create: (context) => CartProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, value, child) {
           print('AUTH CHANGES TO: ${value.isAuth}');
-
           return MaterialApp(
+            key: Key('auth+${value.isAuth}'),
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               primarySwatch: Colors.amber,
@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
             ),
             home: value.isAuth ? ProductsOverviewScreen() : LoginScreen(),
             routes: {
+              LoginScreen.routeName: (context) => LoginScreen(),
               ProductsOverviewScreen.routeName: (context) =>
                   ProductsOverviewScreen(),
               ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
@@ -58,7 +59,6 @@ class MyApp extends StatelessWidget {
                         .userId!,
                   ),
               ManageProductScreen.routeName: (context) => ManageProductScreen(),
-              LoginScreen.routeName: (context) => LoginScreen(),
             },
           );
         },

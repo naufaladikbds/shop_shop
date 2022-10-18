@@ -39,7 +39,6 @@ class CustomDrawer extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               authProvider.logout();
-                              Navigator.pushReplacementNamed(context, '/');
                             },
                             child: Text('Logout'),
                           ),
