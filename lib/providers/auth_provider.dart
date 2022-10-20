@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_shop/models/http_exception.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -69,12 +70,18 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  void logout() {
+  void logout() async {
     _token = null;
     _userEmail = null;
     _userId = null;
     _expiryDate = null;
     _authTimer == null;
+
+    final pref = await SharedPreferences.getInstance();
+
+    pref.remove('userData');
+
+    print('alo');
 
     notifyListeners();
   }
@@ -128,8 +135,18 @@ class AuthProvider with ChangeNotifier {
         ),
       );
       autoLogout();
-
       notifyListeners();
+
+      final pref = await SharedPreferences.getInstance();
+      final userData = jsonEncode({
+        'token': _token,
+        'userId': _userId,
+        'userEmail': _userEmail,
+        'expiryDate': _expiryDate!.toIso8601String(),
+      });
+
+      pref.setString('userData', userData);
+      //
     } on HttpException catch (e) {
       String error = e.toString();
       if (error.contains('EMAIL_NOT_FOUND')) {
@@ -146,6 +163,36 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (e) {
       throw HttpException(message: 'Please check your internet connection');
+    }
+  }
+
+  Future<bool> tryAutoLogin() async {
+    final pref = await SharedPreferences.getInstance();
+
+    if (pref.containsKey('userData')) {
+      final Map userData = jsonDecode(pref.getString('userData')!);
+
+      print('biiiiich');
+      final cacheExpiryDate = DateTime.tryParse(userData['expiryDate']);
+
+      if (cacheExpiryDate!.isBefore(DateTime.now())) {
+        print('no valid token available 1 ');
+        return false;
+      }
+
+      _token = userData['token'];
+      _userId = userData['userId'];
+      _userEmail = userData['userEmail'];
+      _expiryDate = cacheExpiryDate;
+
+      autoLogout();
+
+      notifyListeners();
+      print('FOUND A valid token');
+      return true;
+    } else {
+      print('no valid token available 2 ');
+      return false;
     }
   }
 }
