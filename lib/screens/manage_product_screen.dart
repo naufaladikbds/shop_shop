@@ -11,11 +11,10 @@ import 'package:shop_shop/widgets/custom_drawer.dart';
 class ManageProductScreen extends StatelessWidget {
   const ManageProductScreen({Key? key}) : super(key: key);
 
-  static const routeName = 'manage-product';
+  static const routeName = '/manage-product';
 
   @override
   Widget build(BuildContext context) {
-    print('login');
     final productsProvider = Provider.of<ProductsProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 

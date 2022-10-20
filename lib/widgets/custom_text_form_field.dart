@@ -30,7 +30,6 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('login');
     return Container(
       margin: EdgeInsets.only(top: 10),
       child: TextFormField(

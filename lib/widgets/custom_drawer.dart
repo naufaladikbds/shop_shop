@@ -14,8 +14,6 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('login');
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return Drawer(
       child: ListView(

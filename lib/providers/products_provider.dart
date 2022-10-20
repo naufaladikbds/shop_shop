@@ -88,7 +88,7 @@ class ProductsProvider with ChangeNotifier {
             message: 'Token expired, please login to refresh your session');
       }
 
-      print(responseBody);
+      // print(responseBody);
 
       final List<Product> productList = [];
       final List<String> favoritedProductIds = [];

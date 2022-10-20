@@ -11,34 +11,9 @@ import 'package:shop_shop/widgets/custom_drawer.dart';
 class OrdersScreen extends StatelessWidget {
   static const String routeName = '/orders';
 
-  // bool isError = false;
-  // String errorMessage = '';
-  // bool isLoading = false;
-  // void startFetchOrder() {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
-  //   ordersProvider.fetchOrders().then((value) {
-  //     isError = false;
-  //   }).catchError((e) {
-  //     errorMessage = e.toString();
-  //     isError = true;
-  //   }).whenComplete(() {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
-    print('login');
-    // final ordersProvider = Provider.of<OrdersProvider>(context);
-    // final List<OrderItem> orderList = ordersProvider.orderList;
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    print('runssss');
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       drawer: CustomDrawer(),
@@ -49,10 +24,8 @@ class OrdersScreen extends StatelessWidget {
         future: Provider.of<OrdersProvider>(context, listen: false)
             .fetchOrders(userId: authProvider.userId),
         builder: (context, snapshot) {
-          print('runssss1');
           return Consumer<OrdersProvider>(
             builder: (context, value, child) {
-              print('runssss2');
               return RefreshIndicator(
                 onRefresh: () =>
                     value.fetchOrders(userId: authProvider.userId!),
@@ -133,7 +106,6 @@ class _OrderCardState extends State<OrderCard> {
 
   @override
   Widget build(BuildContext context) {
-    print('login');
     return Card(
       child: Column(
         children: [
