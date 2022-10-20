@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<AuthProvider>(
         builder: (context, value, child) {
           print('AUTH CHANGES TO: ${value.isAuth}');
+
           return MaterialApp(
             key: Key('auth+${value.isAuth}'),
             debugShowCheckedModeBanner: false,
@@ -46,7 +47,14 @@ class MyApp extends StatelessWidget {
               accentColor: Colors.blue,
               fontFamily: 'Lato',
             ),
-            home: value.isAuth ? ProductsOverviewScreen() : LoginScreen(),
+            home: value.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: value.tryAutoLogin(),
+                    builder: (context, snapshot) {
+                      return LoginScreen();
+                    },
+                  ),
             routes: {
               LoginScreen.routeName: (context) => LoginScreen(),
               ProductsOverviewScreen.routeName: (context) =>
