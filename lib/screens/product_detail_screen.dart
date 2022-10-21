@@ -13,45 +13,59 @@ class ProductDetailScreen extends StatelessWidget {
         .searchItemById(id);
 
     return Scaffold(
-      appBar: AppBar(title: Text(product.title)),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: 290,
-              width: double.infinity,
-              child: Image.network(
-                product.imageUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              alignment: Alignment.centerLeft,
-              margin: EdgeInsets.only(
-                top: 20,
-                bottom: 20,
-                left: 20,
-                right: 20,
-              ),
-              child: Text(
-                '\$${product.price}',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 18,
+      // appBar: AppBar(title: Text(product.title)),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 300,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(product.title),
+              collapseMode: CollapseMode.none,
+              background: Hero(
+                tag: id,
+                child: Image.network(
+                  product.imageUrl,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(
-                bottom: 20,
-                left: 20,
-                right: 20,
-              ),
-              child: Text('${product.description}'),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerLeft,
+                  margin: EdgeInsets.only(
+                    top: 20,
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                  ),
+                  child: Text(
+                    '\$${product.price}',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                  ),
+                  child: Text(product.description),
+                ),
+                SizedBox(
+                  height: 900,
+                )
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
