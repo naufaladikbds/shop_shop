@@ -11,6 +11,7 @@ import 'package:shop_shop/screens/manage_product_screen.dart';
 import 'package:shop_shop/screens/orders_screen.dart';
 import 'package:shop_shop/screens/product_detail_screen.dart';
 import 'package:shop_shop/screens/products_overview_screen.dart';
+import 'package:shop_shop/screens/splash_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -52,7 +53,9 @@ class MyApp extends StatelessWidget {
                 : FutureBuilder(
                     future: value.tryAutoLogin(),
                     builder: (context, snapshot) {
-                      return LoginScreen();
+                      return snapshot.connectionState == ConnectionState.waiting
+                          ? SplashScreen()
+                          : LoginScreen();
                     },
                   ),
             routes: {
