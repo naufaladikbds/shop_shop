@@ -8,23 +8,25 @@ import 'package:shop_shop/widgets/custom_text_form_field.dart';
 
 enum AuthMode { signUp, login }
 
-class LoginScreen extends StatefulWidget {
+class LoginScreenWithManualAnimation extends StatefulWidget {
   static const String routeName = '/login';
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreenWithManualAnimation> createState() =>
+      _LoginScreenWithManualAnimationState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenWithManualAnimationState
+    extends State<LoginScreenWithManualAnimation>
     with SingleTickerProviderStateMixin {
   var currentAuthMode = AuthMode.login;
 
   bool isLoading = false;
 
+  var containerHeight = 10;
+
   late AnimationController _controller;
   late Animation<Size> heightAnimation;
-  late Animation<double> opacityAnimation;
-  late Animation<Offset> slideAnimation;
 
   var emailCtrl = TextEditingController(text: 'naufaladi1000@gmail.com');
   var passCtrl = TextEditingController(text: '123123');
@@ -66,13 +68,12 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      reverseDuration: Duration(milliseconds: 200),
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 400),
     );
 
     heightAnimation = Tween<Size>(
-      begin: Size(double.infinity, 0),
-      end: Size(double.infinity, 60),
+      begin: Size(double.infinity, 240),
+      end: Size(double.infinity, 320),
     ).animate(
       CurvedAnimation(
         parent: _controller,
@@ -80,22 +81,9 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
 
-    opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.ease,
-      ),
-    );
-
-    slideAnimation = Tween<Offset>(
-      begin: Offset(0, -0.4),
-      end: Offset(0, 0),
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.ease,
-      ),
-    );
+    heightAnimation.addListener(() {
+      setState(() {});
+    });
 
     super.initState();
   }
@@ -110,8 +98,6 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-
-    print('this shit buiolds again');
 
     return Scaffold(
       body: Container(
@@ -142,6 +128,10 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
             Container(
+              height: heightAnimation.value.height,
+              constraints: BoxConstraints(
+                minHeight: heightAnimation.value.height,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
@@ -159,6 +149,7 @@ class _LoginScreenState extends State<LoginScreen>
               margin: EdgeInsets.only(
                 left: 40,
                 right: 40,
+                bottom: 100,
               ),
               padding: EdgeInsets.only(top: 15, bottom: 20),
               child: Column(
@@ -180,23 +171,14 @@ class _LoginScreenState extends State<LoginScreen>
                             validator: passwordValidator,
                             obscureText: true,
                           ),
-                          if (currentAuthMode == AuthMode.signUp)
-                            AnimatedBuilder(
-                              animation: heightAnimation,
-                              builder: (context, child) {
-                                return Container(
-                                  height: heightAnimation.value.height,
-                                  child: heightAnimation.value.height > 20
-                                      ? CustomTextFormField(
-                                          labelText: 'Verify Password',
-                                          controller: verifyPassCtrl,
-                                          validator: verifyPasswordValidator,
-                                          obscureText: true,
-                                        )
-                                      : Container(),
-                                );
-                              },
-                            )
+                          currentAuthMode == AuthMode.signUp
+                              ? CustomTextFormField(
+                                  labelText: 'Verify Password',
+                                  controller: verifyPassCtrl,
+                                  validator: verifyPasswordValidator,
+                                  obscureText: true,
+                                )
+                              : Container(),
                         ],
                       ),
                     ),
@@ -293,32 +275,18 @@ class _LoginScreenState extends State<LoginScreen>
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            FadeTransition(
-              opacity: opacityAnimation,
-              child: SlideTransition(
-                position: slideAnimation,
-                child: Container(
-                  height: 50,
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  child: Text('Welcome!'),
-                ),
-              ),
-            ),
-            SizedBox(height: 80),
             TextButton(
-              onPressed: () async {
+              onPressed: () {
                 if (currentAuthMode == AuthMode.login) {
                   setState(() {
                     currentAuthMode = AuthMode.signUp;
                   });
                   _controller.forward();
                 } else {
-                  await _controller.reverse();
                   setState(() {
                     currentAuthMode = AuthMode.login;
                   });
+                  _controller.reverse();
                 }
               },
               child: Text(
