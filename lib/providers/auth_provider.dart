@@ -81,8 +81,6 @@ class AuthProvider with ChangeNotifier {
 
     pref.remove('userData');
 
-    print('alo');
-
     notifyListeners();
   }
 
@@ -168,6 +166,10 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> tryAutoLogin() async {
     final pref = await SharedPreferences.getInstance();
+
+    await Future.delayed(Duration(seconds: 1), () {
+      print('timer done');
+    });
 
     if (pref.containsKey('userData')) {
       final Map userData = jsonDecode(pref.getString('userData')!);

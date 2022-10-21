@@ -133,15 +133,17 @@ class _OrderCardState extends State<OrderCard> {
             width: double.infinity,
             color: Colors.grey[200],
             child: ListView.builder(
+              itemCount: widget.order.orderList.length,
               itemBuilder: (ctx, i) => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(widget.order.orderList[i].title),
                   Text('x${widget.order.orderList[i].quantity}'),
-                  Text(widget.order.orderList[i].price.toStringAsFixed(2)),
+                  Text(
+                    widget.order.orderList[i].price.toStringAsFixed(2),
+                  ),
                 ],
               ),
-              itemCount: widget.order.orderList.length,
             ),
           ),
         ],
